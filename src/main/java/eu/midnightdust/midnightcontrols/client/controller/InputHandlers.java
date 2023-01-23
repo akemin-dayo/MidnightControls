@@ -16,6 +16,7 @@ import eu.midnightdust.midnightcontrols.client.MidnightInput;
 import eu.midnightdust.midnightcontrols.client.compat.InventoryTabsCompat;
 import eu.midnightdust.midnightcontrols.client.compat.MidnightControlsCompat;
 import eu.midnightdust.midnightcontrols.client.compat.SodiumCompat;
+import eu.midnightdust.midnightcontrols.client.compat.YACLCompat;
 import eu.midnightdust.midnightcontrols.client.gui.RingScreen;
 import eu.midnightdust.midnightcontrols.client.mixin.AdvancementsScreenAccessor;
 import eu.midnightdust.midnightcontrols.client.mixin.CreativeInventoryScreenAccessor;
@@ -24,14 +25,11 @@ import eu.midnightdust.midnightcontrols.client.util.HandledScreenAccessor;
 import eu.midnightdust.midnightcontrols.client.util.MouseAccessor;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.SpectatorHud;
-import net.minecraft.client.gui.hud.spectator.SpectatorMenu;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.advancement.AdvancementsScreen;
 import net.minecraft.client.gui.screen.ingame.*;
 import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget;
 import net.minecraft.client.gui.widget.PressableWidget;
-import net.minecraft.client.input.Input;
 import net.minecraft.client.util.ScreenshotRecorder;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.screen.slot.Slot;
@@ -42,9 +40,9 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_2;
@@ -56,6 +54,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_2;
  * @version 1.7.0
  * @since 1.1.0
  */
+@SuppressWarnings("UnstableApiUsage")
 public class InputHandlers {
     private InputHandlers() {
     }
@@ -133,7 +132,10 @@ public class InputHandlers {
                 }
                 return true;
             } else {
-                if (FabricLoader.getInstance().isModLoaded("sodium")) SodiumCompat.handleTabs(client.currentScreen, next);
+                if (FabricLoader.getInstance().isModLoaded("sodium"))
+                    SodiumCompat.handleTabs(client.currentScreen, next);
+                if (FabricLoader.getInstance().isModLoaded("yet-another-config-lib") && YACLCompat.handleCategories(client.currentScreen, next))
+                    return true;
             }
             if (MidnightControlsCompat.isInventoryTabsPresent()) InventoryTabsCompat.handleInventoryTabs(client.currentScreen, next);
             return false;
@@ -170,6 +172,7 @@ public class InputHandlers {
                 } catch (Exception ignored) {}
             }
             if (MidnightControlsCompat.isInventoryTabsPresent()) InventoryTabsCompat.handleInventoryPage(client.currentScreen, next);
+
             return false;
         };
     }
